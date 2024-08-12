@@ -110,7 +110,7 @@ def delete_all_claims_endpoint() -> Tuple[Response, int]:
 
 @app.route("/api/kubeconfig/<filename>", methods=["GET"])
 def download_kubeconfig_endpoint(filename: str) -> Tuple[Response, int]:
-    return send_file(f"/tmp/{filename}", download_name=filename, as_attachment=True), 200  # type: ignore[call-arg]
+    return send_file(f"/tmp/{filename}", download_name=filename, as_attachment=True), 200
 
 
 @app.route("/api/claims-delete-in-progress-endpoint", methods=["GET"])

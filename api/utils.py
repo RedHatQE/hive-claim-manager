@@ -209,11 +209,7 @@ def get_claimed_cluster_login_command(claim_name: str) -> Dict[str, str]:
 
     username, password = login_creds["creds"].split("#")
 
-    return {
-        "login_cmd": f"oc login --server {_cluster_deployment.instance.status.apiURL} "
-        f"-u {username} "
-        f"-p {password}"
-    }
+    return {"login_cmd": f"oc login --server {_cluster_deployment.instance.status.apiURL} -u {username} -p {password}"}
 
 
 def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:

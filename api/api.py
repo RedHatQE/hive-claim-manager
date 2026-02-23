@@ -1,11 +1,9 @@
 import os
-from typing import Tuple
-from flask import Response, request, send_file
-from flask import jsonify, session
 
-from users_db import UsersDB
+from app import app, bcrypt
 from claims_db import ClaimsDB
-from app import app
+from flask import Response, jsonify, request, send_file, session
+from users_db import UsersDB
 from utils import (
     claim_cluster,
     claim_cluster_delete,
@@ -14,16 +12,15 @@ from utils import (
     get_all_user_claims_names,
     get_cluster_pools,
 )
-from app import bcrypt
 
 
 @app.route("/api/healthcheck")
-def healthcheck() -> Tuple[Response, int]:
+def healthcheck() -> tuple[Response, int]:
     return jsonify({"status": "ok"}), 200
 
 
 @app.route("/api/@me")
-def get_current_user() -> Tuple[Response, int]:
+def get_current_user() -> tuple[Response, int]:
     _error = {"error": "Unauthorized", "id": "", "admin": False, "name": ""}
     user_id = session.get("user_id")
 
@@ -41,7 +38,7 @@ def get_current_user() -> Tuple[Response, int]:
 
 
 @app.route("/api/login", methods=["POST"])
-def login_user() -> Tuple[Response, int]:
+def login_user() -> tuple[Response, int]:
     name = request.json["name"]
     password = request.json["password"]
 
@@ -60,23 +57,23 @@ def login_user() -> Tuple[Response, int]:
 
 
 @app.route("/api/logout", methods=["POST"])
-def logout_user() -> Tuple[Response, int]:
+def logout_user() -> tuple[Response, int]:
     session.pop("user_id")
     return jsonify({"status": "ok"}), 200
 
 
 @app.route("/api/cluster-pools", methods=["GET"])
-def cluster_pools_endpoint() -> Tuple[Response, int]:
+def cluster_pools_endpoint() -> tuple[Response, int]:
     return jsonify(get_cluster_pools()), 200
 
 
 @app.route("/api/cluster-claims", methods=["GET"])
-def cluster_claims_endpoint() -> Tuple[Response, int]:
+def cluster_claims_endpoint() -> tuple[Response, int]:
     return jsonify(get_all_claims()), 200
 
 
 @app.route("/api/claim-cluster", methods=["POST"])
-def claim_cluster_endpoint() -> Tuple[Response, int]:
+def claim_cluster_endpoint() -> tuple[Response, int]:
     _user: str = request.args.get("user", "")
     _pool_name: str = request.args.get("name", "")
     if not _user or not _pool_name:
@@ -86,7 +83,7 @@ def claim_cluster_endpoint() -> Tuple[Response, int]:
 
 
 @app.route("/api/delete-claim", methods=["POST"])
-def delete_claim_endpoint() -> Tuple[Response, int]:
+def delete_claim_endpoint() -> tuple[Response, int]:
     _claim_name: str = request.args.get("name", "")
     _user: str = request.args.get("user", "")
     if _user in _claim_name or _user == os.getenv("HIVE_CLAIM_MANAGER_SUPERUSER_NAME"):
@@ -97,24 +94,24 @@ def delete_claim_endpoint() -> Tuple[Response, int]:
 
 
 @app.route("/api/all-user-claims-names", methods=["GET"])
-def all_user_claims_names_endpoint() -> Tuple[Response, int]:
+def all_user_claims_names_endpoint() -> tuple[Response, int]:
     _user: str = request.args.get("user", "")
     return jsonify(get_all_user_claims_names(user=_user)), 200
 
 
 @app.route("/api/delete-all-claims", methods=["POST"])
-def delete_all_claims_endpoint() -> Tuple[Response, int]:
+def delete_all_claims_endpoint() -> tuple[Response, int]:
     _user: str = request.args.get("user", "")
     return jsonify(delete_all_claims(user=_user)), 200
 
 
 @app.route("/api/kubeconfig/<filename>", methods=["GET"])
-def download_kubeconfig_endpoint(filename: str) -> Tuple[Response, int]:
+def download_kubeconfig_endpoint(filename: str) -> tuple[Response, int]:
     return send_file(f"/tmp/{filename}", download_name=filename, as_attachment=True), 200
 
 
 @app.route("/api/claims-delete-in-progress-endpoint", methods=["GET"])
-def claims_delete_in_progress_endpoint() -> Tuple[Response, int]:
+def claims_delete_in_progress_endpoint() -> tuple[Response, int]:
     _cliams_delete_in_progress_from_file = ClaimsDB().get_deleted_claims()
     return jsonify(_cliams_delete_in_progress_from_file), 200
 

@@ -1,8 +1,7 @@
+from app import app
+from models import DeletedClaim, db
 from ocp_resources.resource import List
 from sqlalchemy import delete, insert, select
-
-from app import app
-from models import db, DeletedClaim
 
 
 class ClaimsDB:

@@ -1,14 +1,12 @@
+from config import ApplicationConfig
 from flask import Flask
-from flask_bcrypt import Bcrypt
 from flask.logging import default_handler
+from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_session import Session
+from models import db
 from ocp_resources.resource import get_client
 from simple_logger.logger import get_logger
-
-from config import ApplicationConfig
-from models import db
-
 
 app = Flask("hive-claims-manager")
 app.logger.removeHandler(default_handler)

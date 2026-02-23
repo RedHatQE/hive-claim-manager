@@ -1,27 +1,25 @@
 from __future__ import annotations
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from kubernetes.dynamic.resource import ResourceInstance
-from ocp_resources.cluster_claim import ClusterClaim, NamespacedResource
-from ocp_resources.cluster_pool import ClusterPool
-from ocp_resources.cluster_deployment import ClusterDeployment
-from ocp_resources.secret import Secret
-from ocp_utilities.infra import base64
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
+from typing import Any
 
 import shortuuid
-
-from claims_db import ClaimsDB
 from app import app, ocp_client
-
+from claims_db import ClaimsDB
+from kubernetes.dynamic.resource import ResourceInstance
+from ocp_resources.cluster_claim import ClusterClaim, NamespacedResource
+from ocp_resources.cluster_deployment import ClusterDeployment
+from ocp_resources.cluster_pool import ClusterPool
+from ocp_resources.secret import Secret
+from ocp_utilities.infra import base64
 
 HIVE_CLUSTER_NAMESPACE: str = os.environ["HIVE_CLAIM_FLASK_APP_NAMESPACE"]
 
 
-def get_all_claims() -> List[Dict[str, str]]:
-    def _claims(_claim: NamespacedResource) -> List[Dict[str, str]]:
+def get_all_claims() -> list[dict[str, str]]:
+    def _claims(_claim: NamespacedResource) -> list[dict[str, str]]:
         if not _claim.exists:
             return []
 
@@ -89,10 +87,10 @@ def get_all_claims() -> List[Dict[str, str]]:
         return res
 
 
-def get_cluster_pools() -> List[Dict[str, str]]:
+def get_cluster_pools() -> list[dict[str, str]]:
     res = []
 
-    def _get_pool_info(pool: NamespacedResource) -> Dict[str, str]:
+    def _get_pool_info(pool: NamespacedResource) -> dict[str, str]:
         _instance = pool.instance
         _name = _instance.metadata.name
         _size = _instance.spec.size
@@ -116,8 +114,8 @@ def get_cluster_pools() -> List[Dict[str, str]]:
     return res
 
 
-def claim_cluster(user: str, pool: str) -> Dict[str, str]:
-    res: Dict[str, str] = {"error": "", "name": ""}
+def claim_cluster(user: str, pool: str) -> dict[str, str]:
+    res: dict[str, str] = {"error": "", "name": ""}
     _claim: Any = ClusterClaim(
         name=f"{user}-{shortuuid.uuid()[0:5].lower()}",
         namespace=HIVE_CLUSTER_NAMESPACE,
@@ -140,8 +138,8 @@ def claim_cluster_delete(claim_name: str) -> None:
     ClaimsDB().add_claim_to_deleted_claims(claim_name)
 
 
-def get_all_user_claims_names(user: str) -> List[str]:
-    _user_claims: List[str] = []
+def get_all_user_claims_names(user: str) -> list[str]:
+    _user_claims: list[str] = []
     _claim: Any
     for _claim in ClusterClaim.get(dyn_client=ocp_client, namespace=HIVE_CLUSTER_NAMESPACE):
         if (
@@ -154,7 +152,7 @@ def get_all_user_claims_names(user: str) -> List[str]:
     return _user_claims
 
 
-def delete_all_claims(user: str) -> Dict[str, List[str]]:
+def delete_all_claims(user: str) -> dict[str, list[str]]:
     deleted_claims = []
     futures = []
 
@@ -172,7 +170,7 @@ def delete_all_claims(user: str) -> Dict[str, List[str]]:
     return {"deleted_claims": deleted_claims}
 
 
-def get_claimed_cluster_deployment(claim_name: str) -> Optional[ClusterDeployment]:
+def get_claimed_cluster_deployment(claim_name: str) -> ClusterDeployment | None:
     _claim: Any = ClusterClaim(client=ocp_client, name=claim_name, namespace=HIVE_CLUSTER_NAMESPACE)
 
     if not _claim.exists:
@@ -189,7 +187,7 @@ def get_claimed_cluster_deployment(claim_name: str) -> Optional[ClusterDeploymen
     )
 
 
-def get_claimed_cluster_web_console(claim_name: str) -> Dict[str, str]:
+def get_claimed_cluster_web_console(claim_name: str) -> dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
     if not _cluster_deployment:
         return {"console": ""}
@@ -198,7 +196,7 @@ def get_claimed_cluster_web_console(claim_name: str) -> Dict[str, str]:
     return {"console": _console_url}
 
 
-def get_claimed_cluster_login_command(claim_name: str) -> Dict[str, str]:
+def get_claimed_cluster_login_command(claim_name: str) -> dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
     if not _cluster_deployment:
         return {"login-cmd": ""}
@@ -212,7 +210,7 @@ def get_claimed_cluster_login_command(claim_name: str) -> Dict[str, str]:
     return {"login_cmd": f"oc login --server {_cluster_deployment.instance.status.apiURL} -u {username} -p {password}"}
 
 
-def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:
+def get_claimed_cluster_creds(claim_name: str) -> dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
     if not _cluster_deployment:
         return {"creds": ""}
@@ -227,7 +225,7 @@ def get_claimed_cluster_creds(claim_name: str) -> Dict[str, str]:
     }
 
 
-def get_claimed_cluster_kubeconfig(claim_name: str) -> Dict[str, str]:
+def get_claimed_cluster_kubeconfig(claim_name: str) -> dict[str, str]:
     _cluster_deployment = get_claimed_cluster_deployment(claim_name=claim_name)
     if not _cluster_deployment:
         return {"kubeconfig": ""}

@@ -1,22 +1,19 @@
 import os
-from typing import Optional
-
-from pyaml_env import parse_config
-from sqlalchemy import insert, select
 
 from app import app, bcrypt
-
-from models import db, User
+from models import User, db
+from pyaml_env import parse_config
+from sqlalchemy import insert, select
 
 
 class UsersDB:
     TABLE = User
 
-    def get_user_by_name(self, name: str) -> Optional[User]:
+    def get_user_by_name(self, name: str) -> User | None:
         with db.session() as _session:
             return _session.scalars(select(self.TABLE).where(self.TABLE.name == name)).first()
 
-    def get_user_by_id(self, user_id: str) -> Optional[User]:
+    def get_user_by_id(self, user_id: str) -> User | None:
         with db.session() as _session:
             return _session.scalars(select(self.TABLE).where(self.TABLE.id == user_id)).first()
 

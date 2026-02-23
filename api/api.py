@@ -121,8 +121,8 @@ def main() -> None:
     app.run(
         port=5000,
         host="0.0.0.0",
-        use_reloader=bool(os.getenv("HIVE_CLAIM_FLASK_APP_RELOAD", False)),
-        debug=bool(os.getenv("HIVE_CLAIM_FLASK_APP_DEBUG", False)),
+        use_reloader=bool(os.getenv("HIVE_CLAIM_FLASK_APP_RELOAD", "")),
+        debug=bool(os.getenv("HIVE_CLAIM_FLASK_APP_DEBUG", "")),
     )
 
 

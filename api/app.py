@@ -1,3 +1,5 @@
+import sys
+
 from config import ApplicationConfig
 from flask import Flask
 from flask.logging import default_handler
@@ -19,6 +21,6 @@ db.init_app(app)
 
 try:
     ocp_client = get_client()
-except Exception as ex:
+except Exception as ex:  # noqa: BLE001
     app.logger.error(f"Failed to get hive ocp client: {ex}")
-    exit(1)
+    sys.exit(1)
